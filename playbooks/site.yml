@@ -1,0 +1,15 @@
+---
+# Placeholder site playbook for workstation-environment
+# Will be expanded post-approval of proposals in proposals.md
+# Usage example: ansible-playbook -i inventory/hosts.yml playbooks/site.yml --ask-become-pass
+
+- name: Configure workstation environment
+  hosts: workstations
+  become: yes
+  gather_facts: yes
+
+  roles:
+    - role: workstation_core
+      tags: [core, packages, vim, screen, history]
+
+  # Post-approval tasks for podman, k8s, ceph, spire will be added here or in dedicated roles.
