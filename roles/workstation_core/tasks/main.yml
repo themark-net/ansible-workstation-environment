@@ -1,6 +1,6 @@
 ---
 # Core workstation tasks - HIGH LEVEL PACKAGE INSTALL ONLY
-# Specific configs (history file content, vimrc details, podman storage, etc.) NOT implemented yet. See proposals.md
+# Specific configs (history file content, vimrc details, podman storage, etc.) NOT implemented yet. See proposals.md for full list and approval process.
 
 - name: Update package cache (Debian family)
   ansible.builtin.apt:
@@ -14,7 +14,7 @@
   when: ansible_os_family == 'RedHat'
   tags: [packages]
 
-- name: Install core packages (Vim, screen, basics)
+- name: Install core packages (Vim, screen, dev basics, containers, sysadmin)
   ansible.builtin.package:
     name: "{{ item }}"
     state: present
@@ -25,7 +25,42 @@
     - git
     - curl
     - jq
-  tags: [packages, core, vim, screen]
+    - podman
+    - fuse-overlayfs
+    - slirp4netns
+    - kubectl
+    - helm
+    - ceph-common
+    - strace
+    - lsof
+    - tcpdump
+    - build-essential
+  when: ansible_os_family == 'Debian'
+  tags: [packages, core, vim, screen, podman, kubernetes, ceph]
+
+- name: Install core packages (RedHat/Rocky family)
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - vim-enhanced
+    - screen
+    - htop
+    - git
+    - curl
+    - jq
+    - podman
+    - fuse-overlayfs
+    - slirp4netns
+    - kubectl
+    - helm
+    - ceph-common
+    - strace
+    - lsof
+    - tcpdump
+    - '@Development Tools'
+  when: ansible_os_family == 'RedHat'
+  tags: [packages, core, vim, screen, podman, kubernetes, ceph]
 
 - name: Ensure alternatives point to vim (Debian)
   ansible.builtin.command: update-alternatives --set editor /usr/bin/vim.basic
@@ -33,8 +68,8 @@
   changed_when: false
   tags: [vim]
 
-# Unlimited history and other configs proposed in proposals.md - not coded here yet.
-# Podman, kubectl, ceph packages will be in expanded tasks post-approval.
+# Note: On Rocky, 'vim-enhanced' provides full Vim. kubectl/helm often installed via direct download or repo in full role (current uses package for simplicity; may need adjustment).
+# Unlimited bash history, detailed vimrc, podman config, SPIRE agent, Yubikey PAM are configuration changes - proposed at high level in proposals.md, not implemented.
 
 - name: Debug distro info
   ansible.builtin.debug:
