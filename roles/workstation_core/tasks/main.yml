@@ -1,0 +1,42 @@
+---
+# Core workstation tasks - HIGH LEVEL PACKAGE INSTALL ONLY
+# Specific configs (history file content, vimrc details, podman storage, etc.) NOT implemented yet. See proposals.md
+
+- name: Update package cache (Debian family)
+  ansible.builtin.apt:
+    update_cache: yes
+  when: ansible_os_family == 'Debian'
+  tags: [packages]
+
+- name: Update package cache (RedHat family)
+  ansible.builtin.dnf:
+    update_cache: yes
+  when: ansible_os_family == 'RedHat'
+  tags: [packages]
+
+- name: Install core packages (Vim, screen, basics)
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - vim
+    - screen
+    - htop
+    - git
+    - curl
+    - jq
+  tags: [packages, core, vim, screen]
+
+- name: Ensure alternatives point to vim (Debian)
+  ansible.builtin.command: update-alternatives --set editor /usr/bin/vim.basic
+  when: ansible_os_family == 'Debian'
+  changed_when: false
+  tags: [vim]
+
+# Unlimited history and other configs proposed in proposals.md - not coded here yet.
+# Podman, kubectl, ceph packages will be in expanded tasks post-approval.
+
+- name: Debug distro info
+  ansible.builtin.debug:
+    msg: "Distro: {{ ansible_distribution }} {{ ansible_distribution_version }}, Family: {{ ansible_os_family }}"
+  tags: [debug]
